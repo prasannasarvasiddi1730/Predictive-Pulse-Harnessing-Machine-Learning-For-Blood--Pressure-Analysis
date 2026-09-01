@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Predictive Pulse - Blood Pressure Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 30px; }
+        form { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+        label { display: block; margin-top: 15px; }
+        select, button { width: 100%; padding: 10px; margin-top: 5px; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .result { text-align: center; margin-top: 20px; font-weight: bold; font-size: 1.2em; color: #28a745; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Predictive Pulse</h2>
+    <form method="post">
+        <label>Age Group:</label>
+        <select name="age_group" required>
+            <option value="0">Old</option>
+            <option value="1">Middle</option>
+            <option value="2">Young</option>
+        </select>
+
+        <label>Weight Class:</label>
+        <select name="weight_class" required>
+            <option value="0">Underweight</option>
+            <option value="1">Normal</option>
+            <option value="2">Overweight</option>
+        </select>
+
+        <label>Smoker:</label>
+        <select name="smoker" required>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select>
+
+        <label>Activity Level:</label>
+        <select name="activity_level" required>
+            <option value="0">Low</option>
+            <option value="1">Medium</option>
+            <option value="2">High</option>
+        </select>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if result %}
+    <div class="result">Prediction: {{ result }}</div>
+    {% endif %}
+</body>
+</html>
+
+pip install fastapi uvicorn scikit-learn joblib jinja2 numpy
+
+from fastapi import FastAPI, Request, Form
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+import numpy as np
+import joblib
+import os
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import make_classification
+
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+MODEL_FILE = "best_bp_model.pkl"
+
+# Train and save model if not present
+if not os.path.exists(MODEL_FILE):
+    print("Training model from scratch...")
+    # Generate dummy classification data
+    X, y = make_classification(
+        n_samples=300,
+        n_features=4,
+        n_classes=3,
+        n_informative=3,
+        random_state=42,
+    )
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+    model = RandomForestClassifier()
+    model.fit(X_train, y_train)
+    joblib.dump(model, MODEL_FILE)
+    print(f"Model saved as {MODEL_FILE}")
+else:
+    print(f"Loading existing model: {MODEL_FILE}")
+
+# Load the model
+model = joblib.load(MODEL_FILE)
+
+# Mapping of model output to human-readable labels
+bp_labels = {0: "Hypertension", 1: "Normal", 2: "Prehypertension"}
+
+@app.get("/", response_class=HTMLResponse)
+@app.post("/", response_class=HTMLResponse)
+async def home(
+    request: Request,
+    age_group: int = Form(None),
+    weight_class: int = Form(None),
+    smoker: int = Form(None),
+    activity_level: int = Form(None),
+):
+    result = None
+    if None not in (age_group, weight_class, smoker, activity_level):
+        features = np.array([[age_group, weight_class, smoker, activity_level]])
+        pred = model.predict(features)[0]
+        result = bp_labels.get(pred, "Unknown")
+    return templates.TemplateResponse("form.html", {"request": request, "result": result})
+
+uvicorn main:app --reload
