@@ -1,0 +1,48 @@
+# Import required libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load or simulate dataset
+np.random.seed(42)
+data = pd.DataFrame({
+    'age': np.random.randint(20, 80, 500),
+    'weight': np.random.randint(50, 100, 500),
+    'heart_rate': np.random.randint(60, 100, 500),
+    'systolic_bp': np.random.normal(120, 15, 500).astype(int),
+    'diastolic_bp': np.random.normal(80, 10, 500).astype(int),
+    'smoking_status': np.random.choice(['Never', 'Former', 'Current'], 500),
+    'exercise_freq': np.random.choice(['Low', 'Moderate', 'High'], 500)
+})
+
+# Step 1: Basic info
+print("🔹 Dataset Info:\n")
+print(data.info())
+
+# Step 2: Descriptive statistics for numerical features
+print("\n🔹 Descriptive Statistics (Numerical):\n")
+print(data.describe())
+
+# Step 3: Descriptive statistics for categorical features
+print("\n🔹 Value Counts (Categorical):\n")
+print("Smoking Status:\n", data['smoking_status'].value_counts())
+print("\nExercise Frequency:\n", data['exercise_freq'].value_counts())
+
+# Step 4: Plot distribution of numerical features
+numerical_features = ['age', 'weight', 'heart_rate', 'systolic_bp', 'diastolic_bp']
+for col in numerical_features:
+    plt.figure(figsize=(6, 4))
+    sns.histplot(data[col], kde=True, color='skyblue')
+    plt.title(f'Distribution of {col}')
+    plt.xlabel(col)
+    plt.ylabel('Count')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+# Step 5: Correlation heatmap
+plt.figure(figsize=(10, 6))
+sns.heatmap(data[numerical_features].corr(), annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('🔍 Correlation Heatmap (Numerical Features)')
+plt.show()
