@@ -1,0 +1,46 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Simulated dataset (discretized features)
+np.random.seed(42)
+data = pd.DataFrame({
+    'age_group': np.random.choice(['Young', 'Middle', 'Old'], 500),
+    'weight_class': np.random.choice(['Underweight', 'Normal', 'Overweight'], 500),
+    'smoker': np.random.choice(['Yes', 'No'], 500),
+    'activity_level': np.random.choice(['Low', 'Medium', 'High'], 500),
+    'bp_category': np.random.choice(['Normal', 'Prehypertension', 'Hypertension'], 500)
+})
+
+# Encode categorical features
+label_encoders = {}
+for column in data.columns:
+    le = LabelEncoder()
+    data[column] = le.fit_transform(data[column])
+    label_encoders[column] = le
+
+# Features and target
+X = data.drop('bp_category', axis=1)
+y = data['bp_category']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train Multinomial Naive Bayes
+mnb = MultinomialNB()
+mnb.fit(X_train, y_train)
+
+# Predict
+y_pred = mnb.predict(X_test)
+
+# Evaluate
+acc = accuracy_score(y_test, y_pred)
+cm = confusion_matrix(y_test, y_pred)
+report = classification_report(y_test, y_pred)
+
+print(f"Accuracy: {acc:.2f}")
+print("Confusion Matrix:\n", cm)
+print("Classification Report:\n", report)
