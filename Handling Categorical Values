@@ -1,0 +1,31 @@
+# Import required libraries
+import pandas as pd
+import numpy as np
+
+# STEP 1: Load or simulate dataset (replace this with your actual data if needed)
+np.random.seed(42)
+data = pd.DataFrame({
+    'age': np.random.randint(20, 80, 500),
+    'weight': np.random.randint(50, 100, 500),
+    'heart_rate': np.random.randint(60, 100, 500),
+    'systolic_bp': np.random.normal(120, 15, 500).astype(int),
+    'diastolic_bp': np.random.normal(80, 10, 500).astype(int),
+    'smoking_status': np.random.choice(['Never', 'Former', 'Current'], 500),
+    'exercise_freq': np.random.choice(['Low', 'Moderate', 'High'], 500)
+})
+
+# STEP 2: Display unique values in categorical columns
+print("Unique values before encoding:")
+print("\nSmoking Status:", data['smoking_status'].unique())
+print("Exercise Frequency:", data['exercise_freq'].unique())
+
+# STEP 3: Apply One-Hot Encoding
+data_encoded = pd.get_dummies(data, columns=['smoking_status', 'exercise_freq'], drop_first=True)
+
+# STEP 4: Show the columns after encoding
+print("\nColumns after one-hot encoding:")
+print(data_encoded.columns.tolist())
+
+# STEP 5: Display the first few rows of the encoded data
+print("\nPreview of encoded dataset:\n")
+print(data_encoded.head())
