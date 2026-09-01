@@ -1,0 +1,75 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+from sklearn.tree import DecisionTreeRegressor
+import warnings
+warnings.filterwarnings('ignore')
+
+# Simulate dataset (replace this with: data = pd.read_csv('your_file.csv') if using real data)
+np.random.seed(42)
+data = pd.DataFrame({
+    'age': np.random.randint(20, 80, 500),
+    'weight': np.random.randint(50, 100, 500),
+    'heart_rate': np.random.randint(60, 100, 500),
+    'systolic_bp': np.random.normal(120, 15, 500).astype(int),
+    'diastolic_bp': np.random.normal(80, 10, 500).astype(int),
+    'smoking_status': np.random.choice(['Never', 'Former', 'Current'], 500),
+    'exercise_freq': np.random.choice(['Low', 'Moderate', 'High'], 500)
+})
+
+# Encode categorical variables
+le1 = LabelEncoder()
+le2 = LabelEncoder()
+data['smoking_status'] = le1.fit_transform(data['smoking_status'])  # Never=2, Former=0, Current=1 (example)
+data['exercise_freq'] = le2.fit_transform(data['exercise_freq'])    # Low=1, Moderate=2, High=0 (example)
+
+# Features and target
+X = data.drop(['systolic_bp'], axis=1)
+y = data['systolic_bp']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature scaling
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Define models
+models = {
+    "Linear Regression": LinearRegression(),
+    "Decision Tree": DecisionTreeRegressor(random_state=42),
+    "Random Forest": RandomForestRegressor(random_state=42),
+    "Support Vector Regression": SVR()
+}
+
+# Train and test models
+results = []
+
+for name, model in models.items():
+    model.fit(X_train_scaled, y_train)
+    y_pred = model.predict(X_test_scaled)
+    
+    mae = mean_absolute_error(y_test, y_pred)
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = np.sqrt(mse)
+    r2 = r2_score(y_test, y_pred)
+
+    results.append({
+        'Model': name,
+        'MAE': round(mae, 2),
+        'MSE': round(mse, 2),
+        'RMSE': round(rmse, 2),
+        'R2 Score': round(r2, 2)
+    })
+
+# Convert results to DataFrame
+results_df = pd.DataFrame(results)
+print("Model Performance Summary:\n")
+print(results_df.sort_values(by='R2 Score', ascending=False))
