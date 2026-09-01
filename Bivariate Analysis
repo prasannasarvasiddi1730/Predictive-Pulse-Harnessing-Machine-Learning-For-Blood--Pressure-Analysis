@@ -1,0 +1,61 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Simulate or load your dataset
+np.random.seed(42)
+data = pd.DataFrame({
+    'age': np.random.randint(20, 80, 500),
+    'weight': np.random.randint(50, 100, 500),
+    'heart_rate': np.random.randint(60, 100, 500),
+    'systolic_bp': np.random.normal(120, 15, 500).astype(int),
+    'diastolic_bp': np.random.normal(80, 10, 500).astype(int),
+    'smoking_status': np.random.choice(['Never', 'Former', 'Current'], 500),
+    'exercise_freq': np.random.choice(['Low', 'Moderate', 'High'], 500)
+})
+
+sns.set(style="whitegrid")
+
+# 1️⃣ Scatter Plots - Numerical vs Numerical
+plt.figure(figsize=(6, 4))
+sns.scatterplot(x='age', y='systolic_bp', data=data, hue='smoking_status', palette='Set2')
+plt.title('Age vs Systolic BP by Smoking Status')
+plt.xlabel('Age')
+plt.ylabel('Systolic BP')
+plt.tight_layout()
+plt.show()
+
+plt.figure(figsize=(6, 4))
+sns.scatterplot(x='weight', y='diastolic_bp', data=data, hue='exercise_freq', palette='Set3')
+plt.title('Weight vs Diastolic BP by Exercise Frequency')
+plt.xlabel('Weight')
+plt.ylabel('Diastolic BP')
+plt.tight_layout()
+plt.show()
+
+# 2️⃣ Boxplots - Categorical vs Numerical
+plt.figure(figsize=(6, 4))
+sns.boxplot(x='smoking_status', y='systolic_bp', data=data, palette='pastel')
+plt.title('Systolic BP by Smoking Status')
+plt.xlabel('Smoking Status')
+plt.ylabel('Systolic BP')
+plt.tight_layout()
+plt.show()
+
+plt.figure(figsize=(6, 4))
+sns.boxplot(x='exercise_freq', y='diastolic_bp', data=data, palette='muted')
+plt.title('Diastolic BP by Exercise Frequency')
+plt.xlabel('Exercise Frequency')
+plt.ylabel('Diastolic BP')
+plt.tight_layout()
+plt.show()
+
+# 3️⃣ Correlation Heatmap - Numerical Variables
+plt.figure(figsize=(8, 5))
+corr = data[['age', 'weight', 'heart_rate', 'systolic_bp', 'diastolic_bp']].corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Correlation Heatmap of Numerical Features')
+plt.tight_layout()
+plt.show()
