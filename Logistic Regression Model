@@ -1,0 +1,72 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, roc_auc_score, roc_curve
+import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings('ignore')
+
+# Simulate dataset with binary target for hypertension (1 = hypertensive, 0 = normal)
+np.random.seed(42)
+data = pd.DataFrame({
+    'age': np.random.randint(20, 80, 500),
+    'weight': np.random.randint(50, 100, 500),
+    'heart_rate': np.random.randint(60, 100, 500),
+    'systolic_bp': np.random.normal(120, 15, 500).astype(int),
+    'diastolic_bp': np.random.normal(80, 10, 500).astype(int),
+    'smoking_status': np.random.choice(['Never', 'Former', 'Current'], 500),
+    'exercise_freq': np.random.choice(['Low', 'Moderate', 'High'], 500)
+})
+
+# Create binary target: hypertension if systolic_bp > 130 or diastolic_bp > 80
+data['hypertension'] = np.where((data['systolic_bp'] > 130) | (data['diastolic_bp'] > 80), 1, 0)
+
+# Encode categorical variables
+le1 = LabelEncoder()
+le2 = LabelEncoder()
+data['smoking_status'] = le1.fit_transform(data['smoking_status'])
+data['exercise_freq'] = le2.fit_transform(data['exercise_freq'])
+
+# Features and target
+X = data.drop(['hypertension', 'systolic_bp', 'diastolic_bp'], axis=1)  # drop original BP columns
+y = data['hypertension']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature scaling
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Logistic Regression model training
+logreg = LogisticRegression(random_state=42)
+logreg.fit(X_train_scaled, y_train)
+
+# Predictions
+y_pred = logreg.predict(X_test_scaled)
+y_proba = logreg.predict_proba(X_test_scaled)[:,1]
+
+# Evaluation
+acc = accuracy_score(y_test, y_pred)
+cm = confusion_matrix(y_test, y_pred)
+report = classification_report(y_test, y_pred)
+roc_auc = roc_auc_score(y_test, y_proba)
+
+print(f"Accuracy: {acc:.2f}")
+print("Confusion Matrix:\n", cm)
+print("Classification Report:\n", report)
+print(f"ROC AUC Score: {roc_auc:.2f}")
+
+# Plot ROC Curve
+fpr, tpr, thresholds = roc_curve(y_test, y_proba)
+plt.figure(figsize=(6,4))
+plt.plot(fpr, tpr, label=f'ROC curve (area = {roc_auc:.2f})')
+plt.plot([0,1], [0,1], 'k--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve - Logistic Regression')
+plt.legend(loc='lower right')
+plt.show()
