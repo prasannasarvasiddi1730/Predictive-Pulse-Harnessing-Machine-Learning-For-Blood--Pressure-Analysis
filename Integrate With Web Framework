@@ -1,0 +1,45 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+import joblib
+import numpy as np
+
+# Load the saved model
+model = joblib.load("best_bp_model.pkl")
+
+# FastAPI app initialization
+app = FastAPI(
+    title="Predictive Pulse API",
+    description="An API to predict blood pressure category using ML",
+    version="1.0"
+)
+
+# Input data schema using Pydantic
+class BPInput(BaseModel):
+    age_group: int           # 0 = Old, 1 = Middle, 2 = Young
+    weight_class: int        # 0 = Underweight, 1 = Normal, 2 = Overweight
+    smoker: int              # 0 = No, 1 = Yes
+    activity_level: int      # 0 = Low, 1 = Medium, 2 = High
+
+# Mapping prediction output to labels (adjust as per training)
+bp_labels = {
+    0: "Hypertension",
+    1: "Normal",
+    2: "Prehypertension"
+}
+
+# Define prediction route
+@app.post("/predict")
+def predict_bp(data: BPInput):
+    # Convert input to NumPy array
+    input_data = np.array([[data.age_group, data.weight_class, data.smoker, data.activity_level]])
+    
+    # Predict with the loaded model
+    prediction = model.predict(input_data)[0]
+    
+    # Map numeric prediction to label
+    result = bp_labels.get(prediction, "Unknown")
+
+    return {
+        "prediction": result,
+        "code": prediction
+    }
