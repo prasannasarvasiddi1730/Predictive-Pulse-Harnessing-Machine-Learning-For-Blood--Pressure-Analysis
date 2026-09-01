@@ -1,0 +1,48 @@
+# Import required libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Simulate example dataset (you can replace this with pd.read_csv('your_file.csv'))
+np.random.seed(42)
+data = pd.DataFrame({
+    'age': np.random.randint(20, 80, 500),
+    'weight': np.random.randint(50, 100, 500),
+    'heart_rate': np.random.randint(60, 100, 500),
+    'systolic_bp': np.random.normal(120, 15, 500).astype(int),
+    'diastolic_bp': np.random.normal(80, 10, 500).astype(int),
+    'smoking_status': np.random.choice(['Never', 'Former', 'Current'], 500),
+    'exercise_freq': np.random.choice(['Low', 'Moderate', 'High'], 500)
+})
+
+# Introduce some missing values artificially (for demonstration)
+for col in ['age', 'weight', 'heart_rate', 'systolic_bp', 'smoking_status']:
+    data.loc[data.sample(frac=0.05).index, col] = np.nan
+
+# Step 1: Display missing values count
+print("Missing values per column before handling:\n")
+print(data.isnull().sum())
+
+# Step 2 (Optional): Visualize missing values
+sns.heatmap(data.isnull(), cbar=False, cmap='viridis')
+plt.title("Missing Data Heatmap")
+plt.show()
+
+# Step 3: Fill missing numeric values with mean
+numeric_cols = ['age', 'weight', 'heart_rate', 'systolic_bp', 'diastolic_bp']
+for col in numeric_cols:
+    data[col].fillna(data[col].mean(), inplace=True)
+
+# Step 4: Fill missing categorical values with mode
+categorical_cols = ['smoking_status', 'exercise_freq']
+for col in categorical_cols:
+    data[col].fillna(data[col].mode()[0], inplace=True)
+
+# Step 5: Confirm all missing values are handled
+print("\nMissing values after handling:\n")
+print(data.isnull().sum())
+
+# Optional: View cleaned dataset
+print("\nPreview of cleaned dataset:\n")
+print(data.head())
