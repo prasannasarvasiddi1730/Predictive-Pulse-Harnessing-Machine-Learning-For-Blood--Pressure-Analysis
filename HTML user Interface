@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Predictive Pulse</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 40px; }
+        form { background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        select, button { width: 100%; padding: 10px; margin-top: 10px; }
+        h2 { text-align: center; }
+        .result { text-align: center; margin-top: 20px; font-weight: bold; color: green; }
+    </style>
+</head>
+<body>
+    <h2>Predict Blood Pressure Category</h2>
+    <form method="post">
+        <label>Age Group:</label>
+        <select name="age_group">
+            <option value="0">Old</option>
+            <option value="1">Middle</option>
+            <option value="2">Young</option>
+        </select>
+
+        <label>Weight Class:</label>
+        <select name="weight_class">
+            <option value="0">Underweight</option>
+            <option value="1">Normal</option>
+            <option value="2">Overweight</option>
+        </select>
+
+        <label>Smoker:</label>
+        <select name="smoker">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select>
+
+        <label>Activity Level:</label>
+        <select name="activity_level">
+            <option value="0">Low</option>
+            <option value="1">Medium</option>
+            <option value="2">High</option>
+        </select>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if result %}
+    <div class="result">
+        🩺 Prediction: <strong>{{ result }}</strong>
+    </div>
+    {% endif %}
+</body>
+</html>
