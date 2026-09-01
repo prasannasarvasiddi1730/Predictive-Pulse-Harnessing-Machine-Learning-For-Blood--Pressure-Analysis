@@ -1,0 +1,51 @@
+pip install fastapi uvicorn scikit-learn joblib jinja2 numpy
+
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+import joblib
+import numpy as np
+
+# Initialize the FastAPI app
+app = FastAPI(title="Predictive Pulse: Blood Pressure Predictor")
+
+# Load the trained machine learning model
+model = joblib.load("best_bp_model.pkl")
+
+# Setup template engine
+templates = Jinja2Templates(directory="templates")
+
+# Mount the static folder (for future CSS or JS)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Label mapping (you may adjust based on your model's target)
+bp_labels = {
+    0: "Hypertension",
+    1: "Normal",
+    2: "Prehypertension"
+}
+
+# Define GET and POST route for root URL
+@app.get("/", response_class=HTMLResponse)
+@app.post("/", response_class=HTMLResponse)
+async def predict_form(
+    request: Request,
+    age_group: int = Form(None),
+    weight_class: int = Form(None),
+    smoker: int = Form(None),
+    activity_level: int = Form(None)
+):
+    result = None
+
+    # Only predict if all inputs are provided
+    if None not in [age_group, weight_class, smoker, activity_level]:
+        # Prepare the input data for the model
+        input_data = np.array([[age_group, weight_class, smoker, activity_level]])
+        # Get the prediction
+        prediction = model.predict(input_data)[0]
+        # Map prediction to readable label
+        result = bp_labels.get(prediction, "Unknown")
+
+    # Render the form with result
+    return templates.TemplateResponse("form.html", {"request": request, "result": result})
