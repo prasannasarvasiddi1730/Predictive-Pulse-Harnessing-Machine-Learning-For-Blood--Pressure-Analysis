@@ -1,0 +1,17 @@
+# Data manipulation
+import pandas as pd
+import numpy as np
+
+# Data visualization (optional but useful)
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Machine Learning models and tools
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor  # or use Classifier if predicting categories
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+# For encoding categorical features
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+pip install pandas numpy scikit-learn matplotlib seaborn
