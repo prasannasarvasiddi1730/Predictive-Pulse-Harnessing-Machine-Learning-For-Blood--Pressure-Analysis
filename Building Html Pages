@@ -1,0 +1,40 @@
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+import joblib
+import numpy as np
+
+# Load trained model
+model = joblib.load("best_bp_model.pkl")
+
+# Label mapping
+bp_labels = {
+    0: "Hypertension",
+    1: "Normal",
+    2: "Prehypertension"
+}
+
+# Initialize app
+app = FastAPI(title="Predictive Pulse")
+
+# Setup template and static directories
+templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Route for form (GET and POST)
+@app.get("/", response_class=HTMLResponse)
+@app.post("/", response_class=HTMLResponse)
+async def predict_form(
+    request: Request,
+    age_group: int = Form(None),
+    weight_class: int = Form(None),
+    smoker: int = Form(None),
+    activity_level: int = Form(None)
+):
+    result = None
+    if None not in [age_group, weight_class, smoker, activity_level]:
+        input_data = np.array([[age_group, weight_class, smoker, activity_level]])
+        prediction = model.predict(input_data)[0]
+        result = bp_labels.get(prediction, "Unknown")
+    return templates.TemplateResponse("form.html", {"request": request, "result": result})
