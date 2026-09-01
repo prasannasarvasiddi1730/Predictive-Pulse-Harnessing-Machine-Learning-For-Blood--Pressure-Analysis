@@ -1,0 +1,9 @@
+import pandas as pd
+
+# Example: Replace this URL with actual dataset URL
+url = "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
+
+# Load dataset from URL
+data = pd.read_csv(url)
+
+print(data.head())
