@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Predictive Pulse - Blood Pressure Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f2f5; padding: 30px; }
+        form { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+        label { display: block; margin-top: 15px; }
+        select, button { width: 100%; padding: 10px; margin-top: 5px; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .result { text-align: center; margin-top: 20px; font-weight: bold; font-size: 1.2em; color: #28a745; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Predictive Pulse</h2>
+    <form method="post">
+        <label>Age Group:</label>
+        <select name="age_group" required>
+            <option value="0">Old</option>
+            <option value="1">Middle</option>
+            <option value="2">Young</option>
+        </select>
+
+        <label>Weight Class:</label>
+        <select name="weight_class" required>
+            <option value="0">Underweight</option>
+            <option value="1">Normal</option>
+            <option value="2">Overweight</option>
+        </select>
+
+        <label>Smoker:</label>
+        <select name="smoker" required>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select>
+
+        <label>Activity Level:</label>
+        <select name="activity_level" required>
+            <option value="0">Low</option>
+            <option value="1">Medium</option>
+            <option value="2">High</option>
+        </select>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if result %}
+        <div class="result">Prediction: {{ result }}</div>
+    {% endif %}
+</body>
+</html>
