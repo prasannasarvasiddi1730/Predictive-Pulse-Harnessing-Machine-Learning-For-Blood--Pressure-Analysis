@@ -1,0 +1,58 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Simulate or load dataset
+np.random.seed(42)
+data = pd.DataFrame({
+    'age': np.random.randint(20, 80, 500),
+    'weight': np.random.randint(50, 100, 500),
+    'heart_rate': np.random.randint(60, 100, 500),
+    'systolic_bp': np.random.normal(120, 15, 500).astype(int),
+    'diastolic_bp': np.random.normal(80, 10, 500).astype(int),
+    'smoking_status': np.random.choice(['Never', 'Former', 'Current'], 500),
+    'exercise_freq': np.random.choice(['Low', 'Moderate', 'High'], 500)
+})
+
+sns.set(style="whitegrid")
+
+# 1️⃣ Pairplot with Hue (Covers Multivariate Interactions)
+sns.pairplot(
+    data,
+    hue='smoking_status',
+    vars=['age', 'weight', 'systolic_bp', 'diastolic_bp'],
+    diag_kind='kde',
+    palette='Set2'
+)
+plt.suptitle("Pairwise Relationships Colored by Smoking Status", y=1.02)
+plt.show()
+
+# 2️⃣ Multivariate Boxplot: Systolic BP by Smoking & Exercise
+plt.figure(figsize=(8, 5))
+sns.boxplot(x='smoking_status', y='systolic_bp', hue='exercise_freq', data=data)
+plt.title('Systolic BP by Smoking Status and Exercise Frequency')
+plt.xlabel('Smoking Status')
+plt.ylabel('Systolic Blood Pressure')
+plt.legend(title='Exercise Frequency', loc='upper right')
+plt.tight_layout()
+plt.show()
+
+# 3️⃣ Swarmplot: Heart Rate by Exercise & Smoking
+plt.figure(figsize=(8, 5))
+sns.swarmplot(x='exercise_freq', y='heart_rate', hue='smoking_status', data=data)
+plt.title('Heart Rate by Exercise Frequency and Smoking Status')
+plt.xlabel('Exercise Frequency')
+plt.ylabel('Heart Rate')
+plt.legend(title='Smoking Status', loc='upper right')
+plt.tight_layout()
+plt.show()
+
+# 4️⃣ FacetGrid: Diastolic BP vs Age by Smoking Status
+g = sns.FacetGrid(data, col="smoking_status", hue="exercise_freq", height=4)
+g.map_dataframe(sns.scatterplot, x="age", y="diastolic_bp")
+g.add_legend(title="Exercise Level")
+g.fig.subplots_adjust(top=0.8)
+g.fig.suptitle("Diastolic BP vs Age across Smoking Status & Exercise Frequency")
+plt.show()
