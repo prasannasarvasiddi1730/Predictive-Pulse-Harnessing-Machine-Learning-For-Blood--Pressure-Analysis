@@ -1,0 +1,57 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Simulate or load dataset (use pd.read_csv('your_file.csv') if needed)
+np.random.seed(42)
+data = pd.DataFrame({
+    'age': np.random.randint(20, 80, 500),
+    'weight': np.random.randint(50, 100, 500),
+    'heart_rate': np.random.randint(60, 100, 500),
+    'systolic_bp': np.random.normal(120, 15, 500).astype(int),
+    'diastolic_bp': np.random.normal(80, 10, 500).astype(int),
+    'smoking_status': np.random.choice(['Never', 'Former', 'Current'], 500),
+    'exercise_freq': np.random.choice(['Low', 'Moderate', 'High'], 500)
+})
+
+# Set style
+sns.set(style="whitegrid")
+
+# 1️⃣ Boxplot: Systolic BP by Smoking Status
+plt.figure(figsize=(7, 5))
+sns.boxplot(x='smoking_status', y='systolic_bp', data=data, palette='Set2')
+plt.title('Systolic Blood Pressure by Smoking Status')
+plt.xlabel('Smoking Status')
+plt.ylabel('Systolic BP')
+plt.show()
+
+# 2️⃣ Boxplot: Diastolic BP by Exercise Frequency
+plt.figure(figsize=(7, 5))
+sns.boxplot(x='exercise_freq', y='diastolic_bp', data=data, palette='Set3')
+plt.title('Diastolic Blood Pressure by Exercise Frequency')
+plt.xlabel('Exercise Frequency')
+plt.ylabel('Diastolic BP')
+plt.show()
+
+# 3️⃣ Pairplot: Relationship among Numerical Variables
+sns.pairplot(data[['age', 'weight', 'heart_rate', 'systolic_bp', 'diastolic_bp']], diag_kind='kde')
+plt.suptitle('Pairplot of Numerical Features', y=1.02)
+plt.show()
+
+# 4️⃣ Scatter Plot: Age vs Systolic BP
+plt.figure(figsize=(6, 4))
+sns.scatterplot(x='age', y='systolic_bp', hue='smoking_status', data=data)
+plt.title('Age vs Systolic BP Colored by Smoking Status')
+plt.xlabel('Age')
+plt.ylabel('Systolic BP')
+plt.legend(title='Smoking Status')
+plt.show()
+
+# 5️⃣ Heatmap: Correlation Matrix
+plt.figure(figsize=(10, 6))
+corr = data[['age', 'weight', 'heart_rate', 'systolic_bp', 'diastolic_bp']].corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Correlation Heatmap')
+plt.show()
