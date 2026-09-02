@@ -1,0 +1,40 @@
+from fastapi import FastAPI, Request, Form
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+import joblib
+import numpy as np
+
+app = FastAPI()
+
+# Load your trained ML model (make sure this file exists in your project folder)
+model = joblib.load('best_bp_model.pkl')
+
+# Templates folder setup
+templates = Jinja2Templates(directory="templates")
+
+# (Optional) Static files folder setup (for css/js)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Mapping model output to human-readable labels
+bp_labels = {
+    0: "Hypertension",
+    1: "Normal",
+    2: "Prehypertension"
+}
+
+@app.get("/", response_class=HTMLResponse)
+@app.post("/", response_class=HTMLResponse)
+async def home(
+    request: Request,
+    age_group: int = Form(None),
+    weight_class: int = Form(None),
+    smoker: int = Form(None),
+    activity_level: int = Form(None)
+):
+    result = None
+    if None not in (age_group, weight_class, smoker, activity_level):
+        features = np.array([[age_group, weight_class, smoker, activity_level]])
+        prediction = model.predict(features)[0]
+        result = bp_labels.get(prediction, "Unknown")
+    return templates.TemplateResponse("form.html", {"request": request, "result": result})
