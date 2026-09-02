@@ -1,0 +1,15 @@
+import numpy as np
+
+np.random.seed(42)
+
+data = pd.DataFrame({
+    'age': np.random.randint(20, 80, 500),
+    'weight': np.random.randint(50, 100, 500),
+    'heart_rate': np.random.randint(60, 100, 500),
+    'systolic_bp': np.random.normal(120, 15, 500).astype(int),
+    'diastolic_bp': np.random.normal(80, 10, 500).astype(int),
+    'smoking_status': np.random.choice(['Never', 'Former', 'Current'], 500),
+    'exercise_freq': np.random.choice(['Low', 'Moderate', 'High'], 500),
+})
+
+print(data.head())
